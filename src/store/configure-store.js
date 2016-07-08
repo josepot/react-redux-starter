@@ -1,28 +1,28 @@
 import { createStore, applyMiddleware, compose } from 'redux';
-import { fromJS } from 'immutable';
-import persistState from 'redux-localstorage';
-import thunk from 'redux-thunk';
-import promiseMiddleware from '../middleware/promise-middleware';
-import { browserHistory } from 'react-router';
 import { routerMiddleware } from 'react-router-redux';
+import createSagaMiddleware, { END } from 'redux-saga';
 import logger from './logger';
 import rootReducer from '../reducers';
 
-function configureStore(initialState) {
+const sagaMiddleware = createSagaMiddleware();
+
+function configureStore(initialState, history) {
   const store = compose(
-    _getMiddleware(),
+    _getMiddleware(history),
     ..._getEnhancers()
   )(createStore)(rootReducer, initialState);
 
   _enableHotLoader(store);
+
+  store.runSaga = sagaMiddleware.run;
+  store.close = () => store.dispatch(END);
   return store;
 }
 
-function _getMiddleware() {
+function _getMiddleware(history) {
   let middleware = [
-    routerMiddleware(browserHistory),
-    promiseMiddleware,
-    thunk,
+    sagaMiddleware,
+    routerMiddleware(history),
   ];
 
   if (__DEV__) {
@@ -33,37 +33,18 @@ function _getMiddleware() {
 }
 
 function _getEnhancers() {
-  let enhancers = [
-    persistState('session', _getStorageConfig()),
-  ];
-
-  if (__DEV__ && window.devToolsExtension) {
-    enhancers = [...enhancers, window.devToolsExtension() ];
-  }
-
-  return enhancers;
+  return __DEV__ && window.devToolsExtension ?
+    [window.devToolsExtension()] :
+    [];
 }
 
 function _enableHotLoader(store) {
-  if (__DEV__ && module.hot) {
+  if (__DEV__ && window.devToolsExtension) {
     module.hot.accept('../reducers', () => {
       const nextRootReducer = require('../reducers');
       store.replaceReducer(nextRootReducer);
     });
   }
-}
-
-function _getStorageConfig() {
-  return {
-    key: 'react-redux-seed',
-    serialize: (store) => {
-      return store && store.session ?
-        JSON.stringify(store.session.toJS()) : store;
-    },
-    deserialize: (state) => ({
-      session: state ? fromJS(JSON.parse(state)) : fromJS({}),
-    }),
-  };
 }
 
 export default configureStore;

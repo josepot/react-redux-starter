@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { PropTypes } from 'react';
 import { reduxForm } from 'redux-form';
 
 import Form from '../form';
@@ -66,12 +66,20 @@ function LoginForm({
   );
 }
 
+export const props = {
+  isPending: PropTypes.bool.isRequired,
+  hasError: PropTypes.bool.isRequired,
+};
+
+export const handlers = {
+  onSubmit: PropTypes.func.isRequired,
+};
+
 LoginForm.propTypes = {
-  handleSubmit: React.PropTypes.func.isRequired,
-  resetForm: React.PropTypes.func.isRequired,
-  isPending: React.PropTypes.bool.isRequired,
-  hasError: React.PropTypes.bool.isRequired,
-  fields: React.PropTypes.object.isRequired,
+  fields: PropTypes.object.isRequired,
+  ...props,
+  handleSubmit: PropTypes.func.isRequired,
+  resetForm: PropTypes.func.isRequired,
 };
 
 export default reduxForm({

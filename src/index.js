@@ -10,11 +10,13 @@ import { syncHistoryWithStore } from 'react-router-redux';
 
 import routes from './store/routes';
 import configureStore from './store/configure-store';
+import rootSaga from './sagas';
 
 import './styles/index.css';
 
 const store = configureStore({});
 const history = syncHistoryWithStore(browserHistory, store);
+store.runSaga(rootSaga);
 
 if (!__TEST__) {
   ReactDOM.render(

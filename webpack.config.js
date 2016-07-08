@@ -16,7 +16,7 @@ function getEntrySources(sources) {
 
 module.exports = {
   entry: {
-    app: getEntrySources(['./src/index.js']),
+    app: getEntrySources(['babel-polyfill', './src/index.js']),
   },
 
   output: {

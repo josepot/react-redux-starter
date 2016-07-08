@@ -1,17 +1,8 @@
 import React from 'react';
-import { connect } from 'react-redux';
 
 import Container from '../components/container';
 
-function mapStateToProps() {
-  return {};
-}
-
-function mapDispatchToProps() {
-  return {};
-}
-
-function AboutPage() {
+export default function AboutPage() {
   return (
     <Container size={4} center>
       <h2 className="caps">About Us</h2>
@@ -22,8 +13,3 @@ function AboutPage() {
     </Container>
   );
 }
-
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps,
-)(AboutPage);

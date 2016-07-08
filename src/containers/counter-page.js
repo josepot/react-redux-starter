@@ -1,44 +1,37 @@
-import React from 'react';
+import React, { PropTypes } from 'react';
 import { connect } from 'react-redux';
-
-import { increment, decrement } from '../actions/counter';
 
 import Counter from '../components/counter';
 import Container from '../components/container';
 
-function mapStateToProps(state) {
-  return {
-    counter: state.counter.get('count'),
-  };
-}
+import storeConnector from '../queries/counter-page';
+import { counter } from '../actions';
+import bindActionCreatorsRecursively
+  from '../utils/bind-action-creators-recursively';
 
-function mapDispatchToProps(dispatch) {
-  return {
-    increaseCounter: () => dispatch(increment()),
-    decreaseCounter: () => dispatch(decrement()),
-  };
-}
-
-function CounterPage({ counter, increaseCounter, decreaseCounter }) {
+function CounterPage({ counterProps, counterHandlers }) {
   return (
     <Container testid="counter" size={2} center>
       <h2 data-testid="counter-heading" className="center caps" id="qa-counter-heading">Counter</h2>
 
-      <Counter
-        counter={ counter }
-        increment={ increaseCounter }
-        decrement={ decreaseCounter } />
+      <Counter { ...counterProps } { ...counterHandlers } />
     </Container>
   );
 }
 
 CounterPage.propTypes = {
-  counter: React.PropTypes.number,
-  increaseCounter: React.PropTypes.func,
-  decreaseCounter: React.PropTypes.func,
+  counterHandlers: PropTypes.shape(Counter.handlers),
+  counterProps: PropTypes.shape(Counter.props),
+};
+
+const actionCreatorsToProps = {
+  counterHandlers: {
+    increment: counter.onIncrease,
+    decrement: counter.onDecrease,
+  },
 };
 
 export default connect(
-  mapStateToProps,
-  mapDispatchToProps
+  storeConnector,
+  bindActionCreatorsRecursively(actionCreatorsToProps)
 )(CounterPage);
